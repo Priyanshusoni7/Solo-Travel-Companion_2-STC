@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Travel Feeds - Solo Travel Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body class="text-white min-h-screen relative">
+    <!-- Ambient CSS Glowing Blobs -->
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <!-- Navigation bar -->
+    <div th:replace="~{fragments/loggedInNavbar :: main-navbar('dashboard')}"></div>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-4 lg:px-8 py-10 mt-16 relative z-10">
+        
+        <!-- Premium Hero Welcome Banner Section -->
+        <section class="max-w-5xl mx-auto mb-12">
+            <div class="p-8 rounded-3xl bg-gradient-to-r from-violet-900/40 via-indigo-950/30 to-purple-950/20 border border-violet-500/25 relative overflow-hidden backdrop-blur-md">
+                <div class="absolute -right-16 -top-16 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+                    <div>
+                        <span class="text-xs uppercase tracking-widest text-violet-400 font-bold bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20">Explore Companion</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-white mt-3 mb-2 leading-tight">
+                            Find Your Perfect <span class="bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">Travel Partner</span>
+                        </h1>
+                        <p class="text-gray-300 text-sm max-w-xl">
+                            Connect with millions of solo travelers around the globe. Pitch itineraries, join packages, and discover shared experiences.
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <a href="/user/travel/post"
+                           class="action-btn px-6 py-3 rounded-2xl text-sm font-semibold transition duration-300 flex items-center gap-2">
+                            <i class="fas fa-map-marked-alt text-lg"></i> Create Travel Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Floating Stats Widgets Row -->
+        <section class="max-w-5xl mx-auto mb-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="stat-widget text-center">
+                <div class="text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">1,200+</div>
+                <div class="text-xs text-gray-400 mt-1">Active Explorers</div>
+            </div>
+            <div class="stat-widget text-center">
+                <div class="text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">85+</div>
+                <div class="text-xs text-gray-400 mt-1">Destinations Live</div>
+            </div>
+            <div class="stat-widget text-center">
+                <div class="text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">350+</div>
+                <div class="text-xs text-gray-400 mt-1">Active Trips</div>
+            </div>
+            <div class="stat-widget text-center">
+                <div class="text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">24/7</div>
+                <div class="text-xs text-gray-400 mt-1">Live Chat</div>
+            </div>
+        </section>
+
+        <!-- Search Bar Filters -->
+        <section class="sticky top-20 z-30 mb-10 max-w-3xl mx-auto">
+            <div class="search-container">
+                <div class="flex flex-row items-center gap-2">
+                    <select id="searchType" class="bg-white/5 border-0 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-1 focus:ring-violet-500 outline-none text-white cursor-pointer select-none">
+                        <option value="travelplan" class="bg-[#120e24]">Plans</option>
+                        <option value="companion" class="bg-[#120e24]">Companions</option>
+                    </select>
+                    <div class="relative flex-grow">
+                        <input id="searchInput" type="text" placeholder="Search destinations, interests..."
+                               class="w-full px-4 pl-10 py-2.5 bg-transparent border-0 outline-none text-xs text-white" autocomplete="off">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-violet-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Pills Filter Feed -->
+        <section class="mb-10 flex flex-wrap gap-2.5 justify-center">
+            <button class="category-pill active px-4 py-2 rounded-full text-xs font-semibold">
+                <i class="fas fa-fire mr-1.5 text-orange-400"></i> Popular
+            </button>
+            <button class="category-pill px-4 py-2 rounded-full text-xs font-semibold">
+                <i class="fas fa-map-marker-alt mr-1.5 text-red-400"></i> Nearby
+            </button>
+            <button class="category-pill px-4 py-2 rounded-full text-xs font-semibold">
+                <i class="fas fa-calendar-alt mr-1.5 text-blue-400"></i> Upcoming
+            </button>
+            <button class="category-pill px-4 py-2 rounded-full text-xs font-semibold">
+                <i class="fas fa-hiking mr-1.5 text-green-400"></i> Adventure
+            </button>
+            <button class="category-pill px-4 py-2 rounded-full text-xs font-semibold">
+                <i class="fas fa-umbrella-beach mr-1.5 text-yellow-400"></i> Beach
+            </button>
+            <button class="category-pill px-4 py-2 rounded-full text-xs font-semibold">
+                <i class="fas fa-mountain mr-1.5 text-teal-400"></i> Mountains
+            </button>
+        </section>
+
+        <!-- Featured Static Travel Slider Packages -->
+        <section class="max-w-5xl mx-auto mb-14" th:if="${featuredStaticPlans != null && !featuredStaticPlans.isEmpty()}">
+            <h3 class="text-lg font-bold mb-4 px-2 flex items-center gap-2">
+                <i class="fas fa-gem text-violet-400"></i> Featured Packages
+            </h3>
+            <div class="static-plans-slider">
+                <div class="static-plans-track gap-4">
+                    <!-- Iteration 1 -->
+                    <div th:each="plan : ${featuredStaticPlans}" class="static-plan-card flex-none w-72">
+                        <div class="glass-card h-full flex flex-col">
+                            <div class="h-40 bg-purple-900/20 relative overflow-hidden">
+                                <img th:if="${plan.imageUrl}" th:src="${plan.imageUrl}" alt="Destination" class="w-full h-full object-cover">
+                                <div th:unless="${plan.imageUrl}" class="w-full h-full flex items-center justify-center bg-violet-950/20">
+                                    <i class="fas fa-campground text-3xl text-violet-300"></i>
+                                </div>
+                                <div class="absolute top-3 right-3 bg-violet-600/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider">
+                                    <span th:text="${plan.planType}">ADVENTURE</span>
+                                </div>
+                            </div>
+                            <div class="p-5 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <h4 class="text-md font-bold truncate text-white" th:text="${plan.title}">Title</h4>
+                                    <p class="text-xs text-violet-300 flex items-center gap-1.5 mt-1 mb-2">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span th:text="${plan.destination}">Destination</span>
+                                    </p>
+                                    <p class="text-xs text-gray-400 line-clamp-3" th:text="${plan.description}">Description</p>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex items-center justify-between text-xs text-gray-300 border-t border-white/5 pt-3">
+                                        <span class="font-bold text-sm text-white" th:text="'₹' + ${#numbers.formatDecimal(plan.price, 0, 2)}">Price</span>
+                                        <span><span th:text="${plan.currentParticipants}">0</span>/<span th:text="${plan.maxParticipants}">10</span> joined</span>
+                                    </div>
+                                    <a href="#" class="action-btn w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 mt-3">
+                                        <i class="fas fa-ticket-alt"></i> Book / Join Package
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Duplicate for infinite scroll -->
+                    <div th:each="plan : ${featuredStaticPlans}" class="static-plan-card flex-none w-72">
+                        <div class="glass-card h-full flex flex-col">
+                            <div class="h-40 bg-purple-900/20 relative overflow-hidden">
+                                <img th:if="${plan.imageUrl}" th:src="${plan.imageUrl}" alt="Destination" class="w-full h-full object-cover">
+                                <div th:unless="${plan.imageUrl}" class="w-full h-full flex items-center justify-center bg-violet-950/20">
+                                    <i class="fas fa-campground text-3xl text-violet-300"></i>
+                                </div>
+                                <div class="absolute top-3 right-3 bg-violet-600/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider">
+                                    <span th:text="${plan.planType}">ADVENTURE</span>
+                                </div>
+                            </div>
+                            <div class="p-5 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <h4 class="text-md font-bold truncate text-white" th:text="${plan.title}">Title</h4>
+                                    <p class="text-xs text-violet-300 flex items-center gap-1.5 mt-1 mb-2">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span th:text="${plan.destination}">Destination</span>
+                                    </p>
+                                    <p class="text-xs text-gray-400 line-clamp-3" th:text="${plan.description}">Description</p>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex items-center justify-between text-xs text-gray-300 border-t border-white/5 pt-3">
+                                        <span class="font-bold text-sm text-white" th:text="'₹' + ${#numbers.formatDecimal(plan.price, 0, 2)}">Price</span>
+                                        <span><span th:text="${plan.currentParticipants}">0</span>/<span th:text="${plan.maxParticipants}">10</span> joined</span>
+                                    </div>
+                                    <a href="#" class="action-btn w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 mt-3">
+                                        <i class="fas fa-ticket-alt"></i> Book / Join Package
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Travel Plans Grid Feed Feed -->
+        <section id="searchResults" class="max-w-5xl mx-auto">
+            <!-- Empty state check -->
+            <div th:if="${#lists.isEmpty(travelPlans)}" class="text-center py-16 glass-card px-4 max-w-xl mx-auto">
+                <i class="fas fa-compass text-5xl text-violet-400 opacity-40 mb-4 animate-bounce"></i>
+                <h3 class="text-xl font-bold mb-1">No plans available</h3>
+                <p class="text-xs text-gray-400 mb-5">Try checking back later or create your own custom companion plan.</p>
+                <a href="/user/travel/post" class="action-btn px-5 py-2.5 rounded-xl text-xs font-semibold inline-block">Post Plan</a>
+            </div>
+
+            <!-- Feed grid list -->
+            <div th:if="${not #lists.isEmpty(travelPlans)}" id="defaultTravelPlans" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div th:each="travel : ${travelPlans}" class="glass-card">
+                    <div class="p-6">
+                        <!-- Header with user profile pic -->
+                        <div class="flex items-center gap-3.5 mb-4">
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md avatar-pulse flex-shrink-0">
+                                <i class="fas fa-user-circle text-xl text-white"></i>
+                            </div>
+                            <div class="flex-grow min-w-0">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <h3 class="text-lg font-bold text-white truncate" th:text="${travel.destination}">Destination</h3>
+                                        <p class="text-[10px] text-violet-300 mt-0.5" th:text="${#dates.format(travel.createdAt, 'dd MMM yyyy')}">Posted Date</p>
+                                    </div>
+                                    <span class="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full" th:text="${travel.planStatus}">OPEN</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date range display -->
+                        <div class="mb-4 text-xs text-violet-300 flex items-center gap-2 border-l-2 border-violet-500 pl-3">
+                            <i class="far fa-calendar-alt"></i>
+                            <span>
+                                <span th:text="${#dates.format(travel.startDate, 'dd MMM')}"></span> - 
+                                <span th:text="${#dates.format(travel.endDate, 'dd MMM yyyy')}"></span>
+                            </span>
+                        </div>
+
+                        <!-- Daily itinerary details preview -->
+                        <div class="text-xs text-gray-300 mb-5 line-clamp-3">
+                            <p th:if="${travel.dayItineraries.isEmpty()}" class="text-gray-500 italic">No daily itinerary posted.</p>
+                            <div th:unless="${travel.dayItineraries.isEmpty()}">
+                                <div th:each="day, iterStat : ${travel.dayItineraries}" th:if="${iterStat.index < 2}" class="mb-1">
+                                    <span class="font-bold text-violet-400">Day [[${day.key}]]:</span>
+                                    <span th:text="${day.value}">Itinerary detail</span>
+                                </div>
+                                <div th:if="${travel.dayItineraries.size() > 2}" class="text-[10px] text-violet-300/80 font-semibold mt-1">
+                                    + [[${travel.dayItineraries.size() - 2}]] more days itinerary...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Interests Pills -->
+                        <div class="flex flex-wrap gap-1.5 mb-6">
+                            <span th:each="interest : ${#strings.arraySplit(travel.interest, ',')}" class="tag px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1">
+                                <i class="fas fa-tag text-[8px]"></i>
+                                <span th:text="${interest}">Interest</span>
+                            </span>
+                        </div>
+
+                        <!-- Action footer link -->
+                        <a th:href="@{/user/travel/public/view/{id}(id=${travel.travelId})}"
+                           class="action-btn w-full py-3 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5">
+                            <i class="fas fa-info-circle"></i> View Companion Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black/80 backdrop-blur-md mt-20 py-8 border-t border-violet-950/30">
+        <div class="container mx-auto px-4 text-center text-xs text-gray-400">
+            <p class="font-bold text-sm text-white mb-1">Solo Travel Companion</p>
+            <p class="text-violet-300/70 mb-4">Connect. Explore. Experience the world together.</p>
+            <p>&copy; 2026 Solo Travel Companion. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Search / Autocomplete Controller JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let searchTimeout;
+        const defaultView = document.getElementById('defaultTravelPlans');
+
+        function initializeSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchType = document.getElementById('searchType');
+            const resultsContainer = document.getElementById('searchResults');
+
+            searchInput.addEventListener('keyup', function () {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+
+                if (query.length > 0) {
+                    searchTimeout = setTimeout(() => performSearch(query), 400);
+                    if (defaultView) defaultView.style.display = 'none';
+                } else {
+                    if (defaultView) defaultView.style.display = 'grid';
+                    resultsContainer.innerHTML = defaultView ? defaultView.outerHTML : '';
+                }
+            });
+
+            searchType.addEventListener('change', function () {
+                const query = searchInput.value.trim();
+                if (query.length === 0) {
+                    if (defaultView) defaultView.style.display = 'grid';
+                    resultsContainer.innerHTML = defaultView ? defaultView.outerHTML : '';
+                } else {
+                    performSearch(query);
+                }
+            });
+        }
+
+        async function performSearch(keyword) {
+            const searchType = document.getElementById('searchType').value;
+            const resultsContainer = document.getElementById('searchResults');
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+            try {
+                const response = await fetch(`/user/search?keyword=${encodeURIComponent(keyword)}&type=${searchType}`, {
+                    headers: {
+                        [header]: token
+                    }
+                });
+                if (!response.ok) throw new Error('Search request failed');
+
+                const results = await response.json();
+                displayResults(results, searchType);
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsContainer.innerHTML = '<p class="text-red-500 text-center py-10">Error loading search results</p>';
+            }
+        }
+
+        function displayResults(results, type) {
+            const resultsContainer = document.getElementById('searchResults');
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 glass-card px-4 max-w-xl mx-auto">
+                        <i class="fas fa-search-minus text-4xl text-violet-400 mb-3 opacity-60"></i>
+                        <p class="text-white font-bold">No travel companions or plans found</p>
+                        <p class="text-xs text-gray-400 mt-1">Try another search keyword or check filter fields.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+
+            if (type === 'companion') {
+                results.forEach(companion => {
+                    const statusText = companion.location || companion.bio || 'Exploring the world!';
+                    html += `
+                        <div class="glass-card">
+                            <div class="p-6">
+                                <div class="flex items-center gap-3.5 mb-4">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md avatar-pulse flex-shrink-0">
+                                        <i class="fas fa-user-circle text-xl text-white"></i>
+                                    </div>
+                                    <div class="flex-grow min-w-0">
+                                        <h3 class="text-lg font-bold text-white truncate">${companion.name}</h3>
+                                        <p class="text-[10px] text-violet-300 mt-0.5 truncate">${companion.email}</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-violet-200/90 border-l-2 border-violet-500 pl-3 mb-4">${statusText}</p>
+                                <p class="text-xs text-gray-400 line-clamp-3 mb-5">${companion.bio || 'No profile bio provided.'}</p>
+                                
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button onclick="sendFriendRequest('${companion.userId}', this)" 
+                                            class="action-btn py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5">
+                                        <i class="fas fa-user-plus"></i> Connect
+                                    </button>
+                                    <a href="/user/chat?userId=${companion.userId}" 
+                                       class="action-btn-outline py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5">
+                                        <i class="far fa-comment-dots"></i> Message
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                results.forEach(plan => {
+                    // Standardize dates
+                    const sDate = new Date(plan.startDate).toLocaleDateString([], { day: '2-digit', month: 'short' });
+                    const eDate = new Date(plan.endDate).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
+                    const postedStr = new Date(plan.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
+                    
+                    const interestsHtml = plan.interests ? plan.interests.split(',').map(interest => `
+                        <span class="tag px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1">
+                            <i class="fas fa-tag text-[8px]"></i>
+                            <span>${interest.trim()}</span>
+                        </span>
+                    `).join('') : '';
+
+                    let itineraryHtml = '';
+                    if (plan.dayItineraries && Object.keys(plan.dayItineraries).length > 0) {
+                        itineraryHtml += `<div class="line-clamp-3">`;
+                        Object.entries(plan.dayItineraries).slice(0, 2).forEach(([day, detail]) => {
+                            itineraryHtml += `
+                                <div class="mb-1">
+                                    <span class="font-bold text-violet-400">Day ${day}:</span>
+                                    <span>${detail}</span>
+                                </div>
+                            `;
+                        });
+                        if (Object.keys(plan.dayItineraries).length > 2) {
+                            itineraryHtml += `
+                                <div class="text-[10px] text-violet-300/80 font-semibold mt-1">
+                                    + ${Object.keys(plan.dayItineraries).length - 2} more days itinerary...
+                                </div>
+                            `;
+                        }
+                        itineraryHtml += `</div>`;
+                    } else {
+                        itineraryHtml = `<p class="text-gray-500 italic">No daily itinerary posted.</p>`;
+                    }
+
+                    html += `
+                        <div class="glass-card">
+                            <div class="p-6">
+                                <div class="flex items-center gap-3.5 mb-4">
+                                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md avatar-pulse flex-shrink-0">
+                                        <i class="fas fa-user-circle text-xl text-white"></i>
+                                    </div>
+                                    <div class="flex-grow min-w-0">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div>
+                                                <h3 class="text-lg font-bold text-white truncate">${plan.destination}</h3>
+                                                <p class="text-[10px] text-violet-300 mt-0.5">${postedStr}</p>
+                                            </div>
+                                            <span class="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full">${plan.planStatus}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4 text-xs text-violet-300 flex items-center gap-2 border-l-2 border-violet-500 pl-3">
+                                    <i class="far fa-calendar-alt"></i>
+                                    <span>${sDate} - ${eDate}</span>
+                                </div>
+
+                                <div class="text-xs text-gray-300 mb-5">
+                                    ${itineraryHtml}
+                                </div>
+
+                                <div class="flex flex-wrap gap-1.5 mb-6">
+                                    ${interestsHtml}
+                                </div>
+
+                                <a href="/user/travel/public/view/${plan.id}"
+                                   class="action-btn w-full py-3 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-info-circle"></i> View Companion Details
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += '</div>';
+            resultsContainer.innerHTML = html;
+        }
+
+        // Send friend request utility from search results
+        function sendFriendRequest(userId, btnElement) {
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+            $.ajax({
+                url: '/user/friends/request',
+                method: 'POST',
+                data: { recipientId: userId },
+                headers: {
+                    [header]: token
+                },
+                success: function () {
+                    $(btnElement).prop('disabled', true)
+                        .html('<i class="fas fa-check"></i> Request Sent')
+                        .removeClass('bg-gradient-to-r from-indigo-600 to-blue-600')
+                        .addClass('bg-gray-700/60 text-gray-400');
+                },
+                error: function (xhr) {
+                    alert('Error sending request: ' + xhr.responseText);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeSearch);
+    </script>
+</body>
+
+</html>

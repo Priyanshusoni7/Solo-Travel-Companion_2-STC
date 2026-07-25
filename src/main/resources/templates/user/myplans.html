@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Travel Plans - Solo Travel Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <style>
+        .glass-effect {
+            background: rgba(20, 20, 40, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-effect:hover {
+            transform: translateY(-5px);
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
+        }
+
+        .hero-bg {
+            background: radial-gradient(circle at top, #2e1065 0%, #0f051d 50%, #030008 100%);
+            background-attachment: fixed;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tag {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: rgb(192, 132, 252);
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white min-h-screen flex flex-col mt-8 hero-bg">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/loggedInNavbar :: main-navbar('myplans')}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-16 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h1 class="text-4xl font-bold gradient-text mb-8" data-aos="fade-up">Manage Travel</h1>
+
+            <!-- Flex Grid with Sidebar -->
+            <div class="flex flex-col md:flex-row gap-8">
+                
+                <!-- Left Sidebar Navigation -->
+                <div class="w-full md:w-64 flex-shrink-0" data-aos="fade-up">
+                    <div class="glass-effect p-6 sticky top-24 space-y-2">
+                        <h3 class="text-xs font-bold tracking-wider text-violet-400 uppercase mb-4 px-2">Navigation</h3>
+                        
+                        <a href="/user/travel/myplans" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-violet-600/20 text-violet-300 font-semibold border-l-2 border-violet-500 transition">
+                            <i class="fas fa-map-marked-alt text-violet-400 w-5"></i> My Plans
+                        </a>
+                        
+                        <a href="/user/travel/post" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-gray-300 transition">
+                            <i class="fas fa-plus-circle text-violet-400 w-5"></i> Post New Plan
+                        </a>
+                        
+                        <a href="/user/travel/my-joined-users" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-gray-300 transition">
+                            <i class="fas fa-users-cog text-violet-400 w-5"></i> Joined Companions
+                        </a>
+                        
+                        <a href="/user/requests/pending" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-gray-300 transition">
+                            <i class="fas fa-envelope-open-text text-violet-400 w-5"></i> Pending Requests
+                        </a>
+                        
+                        <a href="/user/requests/sent" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-gray-300 transition">
+                            <i class="fas fa-paper-plane text-violet-400 w-5"></i> Sent Requests
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Side content area -->
+                <div class="flex-grow" data-aos="fade-up" data-aos-delay="100">
+                    
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(travelPlans)}" class="glass-effect p-10 text-center">
+                        <i class="fas fa-folder-open text-violet-400 text-4xl mb-4 opacity-50"></i>
+                        <p class="text-xl text-gray-300 mb-6">You haven't posted any travel plans yet.</p>
+                        <a href="/user/travel/post"
+                           class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 px-6 py-3 rounded-xl font-medium transition duration-300 shadow-md">
+                            Post First Trip Plan
+                        </a>
+                    </div>
+
+                    <!-- Plans List -->
+                    <div th:unless="${#lists.isEmpty(travelPlans)}" class="grid md:grid-cols-2 gap-6">
+                        <div th:each="plan : ${travelPlans}" class="glass-effect p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <h2 class="text-xl font-bold truncate text-white" th:text="${plan.destination}">Destination</h2>
+                                    <span th:class="${plan.planStatus == 'OPEN' ? 'px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold' : 'px-2.5 py-1 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-400 text-xs font-bold'}"
+                                          th:text="${plan.planStatus}">Status</span>
+                                </div>
+
+                                <div class="text-gray-300 text-xs space-y-2 mb-4">
+                                    <p class="flex items-center gap-2">
+                                        <i class="fas fa-calendar-alt text-violet-400"></i>
+                                        <span th:text="${#dates.format(plan.startDate, 'MMM dd')}"></span> -
+                                        <span th:text="${#dates.format(plan.endDate, 'MMM dd, yyyy')}"></span>
+                                    </p>
+                                    <p class="flex items-center gap-2">
+                                        <i class="fas fa-tag text-violet-400"></i>
+                                        <span th:text="${plan.interest}">Interest</span>
+                                    </p>
+                                </div>
+
+                                <!-- Itinerary Preview -->
+                                <div class="border-t border-white/5 pt-3 mb-5">
+                                    <p class="text-[10px] text-gray-400 font-semibold mb-1">Itinerary preview:</p>
+                                    <p th:if="${plan.dayItineraries != null && !plan.dayItineraries.isEmpty()}" class="text-xs text-gray-300 line-clamp-2">
+                                        <span th:text="${plan.dayItineraries.get(1) != null ? plan.dayItineraries.get(1) : 'No itinerary details available'}">Day 1 details</span>
+                                        <span th:if="${plan.dayItineraries.size() > 1}" class="text-violet-400">
+                                            (+ <span th:text="${plan.dayItineraries.size() - 1}"></span> more days)
+                                        </span>
+                                    </p>
+                                    <p th:if="${plan.dayItineraries == null || plan.dayItineraries.isEmpty()}" class="text-xs text-gray-400 italic">
+                                        No itinerary details available.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between border-t border-white/5 pt-4">
+                                <div class="flex items-center text-xs text-gray-300">
+                                    <i class="fas fa-users text-violet-400 mr-1.5"></i>
+                                    <span class="font-bold text-white" th:text="${joinedCounts.get(plan.travelId) ?: 0}">0</span> joined
+                                </div>
+                                <div class="flex gap-2">
+                                    <a th:href="@{/user/travel/edit/{id}(id=${plan.travelId})}"
+                                       class="px-3.5 py-1.5 border border-white/10 hover:bg-white/5 rounded-lg text-xs transition duration-300">
+                                        Edit
+                                    </a>
+                                    <a th:href="@{/user/travel/public/view/{id}(id=${plan.travelId})}"
+                                       class="px-3.5 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 rounded-lg text-xs font-semibold text-white transition duration-300">
+                                        Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+</body>
+
+</html>

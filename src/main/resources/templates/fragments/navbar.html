@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<!-- Dynamic Navbar Fragment -->
+<nav th:fragment="navbar-guest(currentPage)"
+    class="fixed top-0 left-0 w-full bg-black/70 backdrop-blur-lg shadow-lg py-4 z-50">
+    <div class="container mx-auto flex justify-between items-center px-6">
+        <a href="/" class="text-4xl font-black gradient-text tracking-tight">STC</a>
+        <div class="flex gap-6 items-center">
+            <!-- Show Home link except on home page -->
+            <a th:if="${currentPage != 'home'}" href="/"
+                class="text-gray-300 hover:text-violet-400 transition-colors duration-300">
+                Home
+            </a>
+
+            <!-- Show Login link except on login page -->
+            <a th:if="${currentPage != 'login'}" href="/login"
+                class="text-gray-300 hover:text-violet-400 transition-colors duration-300">
+                Login
+            </a>
+
+            <!-- Show Register link except on register page -->
+            <a th:if="${currentPage != 'register'}" href="/register"
+                class="bg-violet-600 hover:bg-violet-700 px-6 py-2.5 rounded-xl font-medium transition-all duration-300 hover-glow">
+                Join Now
+            </a>
+        </div>
+    </div>
+</nav>
+
+</html>

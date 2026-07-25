@@ -1,0 +1,78 @@
+HELP.md
+
+# =========================
+# Maven
+# =========================
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# =========================
+# Spring Boot Configuration
+# =========================
+
+# Ignore local configuration containing secrets
+src/main/resources/application-dev.properties
+
+# Ignore environment files
+.env
+.env.*
+
+# But keep the example
+!.env.example
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# IDEs
+# =========================
+.idea/
+.vscode/
+
+*.iml
+*.ipr
+*.iws
+
+# =========================
+# Eclipse / STS
+# =========================
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+.factorypath
+.apt_generated
+
+# =========================
+# NetBeans
+# =========================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# =========================
+# Build folders
+# =========================
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Java crash logs
+# =========================
+hs_err_pid*
+replay_pid*

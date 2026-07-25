@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Solo Travel Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/chat.css?v=3">
+</head>
+
+<body class="chat-page-body text-white min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/loggedInNavbar :: main-navbar('chat')}"></div>
+
+    <!-- Hidden inputs for JS controller -->
+    <input type="hidden" id="currentUserId" th:value="${userId}">
+    <input type="hidden" id="currentUserName" th:value="${userName}">
+
+    <!-- Main Container -->
+    <main class="flex-grow pt-[60px] flex" style="height: 100vh;">
+        <div class="w-full h-full flex flex-col">
+            <!-- Chat Grid Workspace -->
+            <div class="flex-grow overflow-hidden flex flex-row" style="background: rgba(10,10,20,0.85); border-top: 1px solid rgba(139,92,246,0.12);">
+                
+                <!-- Sidebar: Friends List -->
+                <div class="w-80 flex flex-col chat-sidebar" style="min-width: 320px;">
+                    <!-- Sidebar Header -->
+                    <div class="p-4 border-b border-violet-900/20 bg-black/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-lg font-bold text-white">Chats</h2>
+                            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-violet-300">
+                                <span id="connectionStatus" class="connection-status disconnected"></span>
+                                <span id="connectionText">Connecting...</span>
+                            </div>
+                        </div>
+                        <div class="search-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="friendSearchInput" placeholder="Search friends..." class="search-input-field">
+                        </div>
+                    </div>
+
+                    <!-- Friends Scroll Container -->
+                    <div class="flex-grow overflow-y-auto custom-scrollbar styled-scrollbar">
+                        <div id="loadingFriends" class="flex flex-col items-center py-10">
+                            <div class="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div id="friendsList" class="divide-y divide-white/5">
+                            <div th:each="friend : ${friends}" 
+                                 th:data-user-id="${friend.userId}"
+                                 th:data-email="${friend.email}"
+                                 class="friend-item"
+                                 th:attr="onclick=|selectFriend('${friend.userId}')|">
+                                <div class="avatar-container mr-3">
+                                    <img th:src="${friend.profilePic != null ? friend.profilePic : '/images/userimg.png'}"
+                                         class="avatar-image" 
+                                         alt="Profile Pic">
+                                    <span class="status-badge online"></span>
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <h6 class="font-semibold text-sm truncate friend-name" th:text="${friend.name}">Friend Name</h6>
+                                    <p class="text-xs text-violet-300/70 truncate" th:text="${friend.email}">friend@email.com</p>
+                                </div>
+                                <span th:id="'unread-' + ${friend.userId}" class="unread-badge hidden ml-2">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area Container -->
+                <div class="flex-grow flex flex-col chat-window">
+                    
+                    <!-- Empty State View -->
+                    <div id="noChatSelected" class="empty-chat-state">
+                        <i class="far fa-comments empty-chat-icon"></i>
+                        <h3 class="text-xl font-bold text-violet-300 mb-1">Your conversations</h3>
+                        <p class="text-xs text-gray-400">Select a companion from the sidebar to view chat history and start messaging.</p>
+                    </div>
+
+                    <!-- Conversation Active View -->
+                    <div id="chatBox" class="hidden h-full flex flex-col">
+                        <!-- Active Header -->
+                        <div class="chat-header flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="relative mr-3">
+                                    <img id="recipientImg" src="/images/userimg.png" class="w-10 h-10 rounded-full object-cover border border-violet-500" alt="Avatar">
+                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-black"></span>
+                                </div>
+                                <div>
+                                    <h4 id="recipientName" class="font-bold text-sm">Companion Name</h4>
+                                    <p id="recipientStatus" class="text-xs text-violet-300/80 truncate max-w-[200px] md:max-w-md">Online</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Messages Stream -->
+                        <div id="messageArea" class="message-area">
+                            <!-- Messages appended here dynamically -->
+                        </div>
+
+                        <!-- Input Compose Panel -->
+                        <div class="composer-panel">
+                            <form id="messageForm" class="flex items-center gap-2">
+                                <input type="hidden" id="recipientId">
+                                <div class="flex-grow composer-input-wrapper flex items-center">
+                                    <textarea id="message" rows="1" placeholder="Write a message..." class="composer-textarea styled-scrollbar" autocomplete="off"></textarea>
+                                    <button type="button" class="composer-btn">
+                                        <i class="far fa-smile text-lg"></i>
+                                    </button>
+                                </div>
+                                <button type="submit" class="composer-btn composer-send-btn">
+                                    <i class="fas fa-paper-plane text-sm"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="/js/chat.js"></script>
+</body>
+
+</html>

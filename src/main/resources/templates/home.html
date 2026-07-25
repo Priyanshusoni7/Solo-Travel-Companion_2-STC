@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Travel Companion - Connect & Explore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: all 0.4s ease;
+        }
+
+        .glass-effect:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradientFlow 5s ease infinite;
+        }
+
+        .hero-bg {
+            background: radial-gradient(circle at top right, #4c1d95 0%, #1e1b4b 50%, #000 100%);
+            animation: backgroundPulse 15s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes backgroundPulse {
+            0% {
+                background-size: 100% 100%;
+            }
+
+            50% {
+                background-size: 120% 120%;
+            }
+
+            100% {
+                background-size: 100% 100%;
+            }
+        }
+
+        .hover-glow:hover {
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <div>
+        <div th:if="${loggedInUser}">
+            <div th:replace="~{fragments/loggedInNavbar:: main-navbar('home')}"></div>
+        </div>
+        <div th:unless="${loggedInUser}">
+            <div th:replace="~{fragments/navbar :: navbar-guest('home')}"></div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero-bg min-h-screen flex items-center justify-center px-4 py-32">
+        <div class="text-center max-w-4xl mx-auto" data-aos="fade-up">
+            <h1 class="text-7xl font-black tracking-tight gradient-text mb-8">
+                Travel Together,<br>Adventure Forever
+            </h1>
+            <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                Join a community of passionate travelers. Share experiences, meet companions, and create unforgettable
+                memories around the world.
+            </p>
+            <div class="flex gap-6 justify-center">
+                <span th:unless="${loggedInUser}">
+                    <a href="/register"
+                        class="bg-violet-600 hover:bg-violet-700 px-8 py-4 rounded-xl font-medium text-lg transition-all duration-300 hover-glow">
+                        Start Your Journey
+                    </a>
+                </span>
+                <span th:if="${loggedInUser}">
+                    <a href="/user/dashboard"
+                        class="bg-violet-600 hover:bg-violet-700 px-8 py-4 rounded-xl font-medium text-lg transition-all duration-300 hover-glow">
+                        Explore Now
+                    </a>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features -->
+    <section class="container mx-auto py-24 px-6">
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass-effect p-8" data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-2xl font-bold gradient-text mb-4">🌏 Connect Globally</h3>
+                <p class="text-gray-400">Find travel companions from around the world who share your passion for
+                    adventure.</p>
+            </div>
+            <div class="glass-effect p-8" data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-2xl font-bold gradient-text mb-4">🤝 Plan Together</h3>
+                <p class="text-gray-400">Create and join travel plans, coordinate with companions, and make memories
+                    together.</p>
+            </div>
+            <div class="glass-effect p-8" data-aos="fade-up" data-aos-delay="300">
+                <h3 class="text-2xl font-bold gradient-text mb-4">💬 Stay Connected</h3>
+                <p class="text-gray-400">Chat with fellow travelers, share tips, and build lasting friendships along the
+                    way.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="bg-gradient-to-r from-violet-900 to-indigo-900 py-20 px-4">
+        <div class="container mx-auto text-center" data-aos="fade-up">
+            <h2 class="text-4xl font-bold mb-6">Ready to Begin Your Adventure?</h2>
+            <p class="text-xl text-gray-300 mb-8">Join thousands of travelers already connecting worldwide.</p>
+            <span th:unless="${loggedInUser}">
+                <a href="/register"
+                    class="bg-white text-violet-900 px-8 py-4 rounded-xl font-bold text-lg inline-block hover:bg-gray-100 transition-all duration-300 hover-glow">
+                    Join Free Today
+                </a>
+            </span>
+            <span th:if="${loggedInUser}">
+                <a href="/user/dashboard"
+                    class="bg-white text-violet-900 px-8 py-4 rounded-xl font-bold text-lg inline-block hover:bg-gray-100 transition-all duration-300 hover-glow">
+                    Explore Now
+                </a>
+            </span>
+        </div>
+    </section>
+
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+    </script>
+</body>
+
+</html>
