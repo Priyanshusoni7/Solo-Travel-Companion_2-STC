@@ -6,6 +6,8 @@
 
 A full-stack platform where solo travelers publish trips, find companions, join each other's plans and chat in real time.
 
+### 🔗 [Live Demo](https://stc-frontend-6p0m.onrender.com)
+
 ![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4-6DB33F?style=flat-square)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square)
@@ -49,6 +51,10 @@ The repository contains **two independent applications**:
 | **Frontend** | [`frontend/`](frontend) | Web client (React) | http://localhost:5173 |
 
 They are built, run and deployed separately and communicate only over HTTP and WebSocket.
+
+**Live demo:** https://stc-frontend-6p0m.onrender.com
+
+> Hosted on Render's free tier: the first request after a period of inactivity can take up to a minute while the server wakes up. Use Chrome or Edge; Safari blocks the cross-site login cookie on the default hosting domains.
 
 ---
 
