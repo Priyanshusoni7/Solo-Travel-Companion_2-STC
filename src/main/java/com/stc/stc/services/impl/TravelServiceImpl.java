@@ -7,14 +7,18 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.stc.stc.dto.TravelCacheDto;
 import com.stc.stc.dto.UserSummaryDto;
 import com.stc.stc.entity.Travel;
 import com.stc.stc.entity.User;
+import com.stc.stc.repository.JoinRequestRepository;
 import com.stc.stc.repository.TravelRepo;
 import com.stc.stc.repository.UserRepo;
 import com.stc.stc.services.TravelService;
@@ -27,6 +31,12 @@ public class TravelServiceImpl implements TravelService {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private JoinRequestRepository joinRequestRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
 
 
     // cache — evict exploreTrips when a new plan is created
@@ -100,6 +110,31 @@ public class TravelServiceImpl implements TravelService {
         }
     }
 
+    // cache — evict exploreTrips when a plan is deleted
+    @Override
+    @Transactional
+    @CacheEvict(value = "exploreTrips", allEntries = true)
+    public void deleteTravelPlan(String travelId) {
+        Travel travel = getTravelPlanById(travelId);
+        // join_requests.travel_id references the plan, so remove those rows first
+        joinRequestRepository.deleteAll(joinRequestRepository.findByTravelPlan(travel));
+        travelRepo.delete(travel);
+    }
+
+    @Override
+    @Transactional
+    public int closeStartedPlans(java.time.LocalDate today) {
+        int closed = travelRepo.closePlansStartedOnOrBefore(Date.valueOf(today));
+        if (closed > 0) {
+            // the explore cache holds plan statuses
+            Cache cache = cacheManager.getCache("exploreTrips");
+            if (cache != null) {
+                cache.clear();
+            }
+        }
+        return closed;
+    }
+
     // -------------------------------------------------------------------------
     // Private mapping helpers
     // -------------------------------------------------------------------------
@@ -138,6 +173,8 @@ public class TravelServiceImpl implements TravelService {
                 .endDate(travel.getEndDate())
                 .createdAt(travel.getCreatedAt())
                 .user(userSummary)
+                .maxCompanions(travel.getMaxCompanions())
+                .coverImageUrl(travel.getCoverImageUrl())
                 .build();
     }
 }

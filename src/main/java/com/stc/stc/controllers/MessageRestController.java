@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.stc.stc.dto.ChatMessageDto;
 import com.stc.stc.dto.CommunityDto;
 import com.stc.stc.entity.User;
-import com.stc.stc.helper.Helper;
-import com.stc.stc.repository.UserRepo;
+import com.stc.stc.helper.CurrentUser;
 import com.stc.stc.services.MessageService;
 import com.stc.stc.services.CommunityMessageService;
 
@@ -23,38 +22,35 @@ public class MessageRestController {
     private MessageService messageService;
 
     @Autowired
-    private UserRepo userRepo;
+    private CurrentUser currentUser;
 
     @Autowired
     private CommunityMessageService communityMessageService;
 
     @GetMapping("/conversation/{userId}")
     public List<ChatMessageDto> getConversation(@PathVariable String userId, Authentication authentication) {
-
-        String email = Helper.getEmailOfLoggedInUser(authentication);
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new IllegalStateException("User not found"));
+        User user = currentUser.require(authentication);
         return messageService.getConversation(user.getUserId(), userId);
     }
 
     @GetMapping("/unread")
     public List<ChatMessageDto> getUnreadMessages(Authentication authentication) {
-        String email = Helper.getEmailOfLoggedInUser(authentication);
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new IllegalStateException("User not found"));
-
-        String currentUserId = user.getUserId();
-        return messageService.getUnreadMessages(currentUserId);
+        User user = currentUser.require(authentication);
+        return messageService.getUnreadMessages(user.getUserId());
     }
 
     @PutMapping("/{messageId}/read")
-    public void markAsRead(@PathVariable Long messageId) {
-        messageService.markAsRead(messageId);
+    public void markAsRead(@PathVariable Long messageId, Authentication authentication) {
+        User user = currentUser.require(authentication);
+        messageService.markAsRead(messageId, user.getUserId());
     }
 
     @GetMapping("/community")
     public List<CommunityDto> getCommunityMessages(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "50") int size) {
-        List<CommunityDto> messages = communityMessageService.getRecentMessages(page, size);
+        List<CommunityDto> messages = communityMessageService.getRecentMessages(Math.max(page, 0),
+                Math.min(Math.max(size, 1), 100));
         Collections.reverse(messages);
         return messages;
     }

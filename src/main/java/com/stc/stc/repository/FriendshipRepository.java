@@ -28,4 +28,10 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
     // Find all pending friendships where user is the recipient
     @Query("SELECT f FROM Friendship f WHERE f.user2 = ?1 AND f.status = 'pending'")
     List<Friendship> findPendingFriendRequestsForUser(User user);
+
+    long countByStatus(String status);
+
+    // blockUser() always stores the blocker as user1
+    @Query("SELECT f FROM Friendship f WHERE f.user1 = ?1 AND f.status = 'blocked'")
+    List<Friendship> findBlockedByUser(User blocker);
 }

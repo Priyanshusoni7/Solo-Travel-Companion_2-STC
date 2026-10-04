@@ -23,12 +23,14 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        // set in ChatController#addUser: username = userId, displayName = name
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         if (username != null) {
             // log.info("User Disconnected : {}", username);
             var chatMessage = CommunityDto.builder()
                     .type(MessageType.LEAVE)
                     .sender(username)
+                    .senderName((String) headerAccessor.getSessionAttributes().get("displayName"))
                     .build();
 
             messageTemplate.convertAndSend("/topic/public", chatMessage);

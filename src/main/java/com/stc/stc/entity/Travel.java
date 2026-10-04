@@ -43,6 +43,14 @@ public class Travel {
     private Date endDate;
     private Date createdAt;
 
+    // Optional limit of accepted companions (NULL = unlimited, which is what all existing plans get)
+    @Column(name = "max_companions")
+    private Integer maxCompanions;
+
+    // Optional Cloudinary cover photo (NULL for existing plans)
+    @Column(name = "cover_image_url", length = 1000)
+    private String coverImageUrl;
+
     // mapping with user
     @ManyToOne
     @JsonIgnore

@@ -23,4 +23,10 @@ public interface TravelService {
 
     public void updateTravelPlan(Travel travelPlan);
 
+    /** Deletes a plan together with its join requests (used by admin moderation). */
+    void deleteTravelPlan(String travelId);
+
+    /** Sets OPEN plans whose start date is on/before `today` to CLOSED; returns how many changed. */
+    int closeStartedPlans(java.time.LocalDate today);
+
 }

@@ -66,4 +66,9 @@ public class TravelCacheDto implements Serializable {
      * without carrying lazy collections or framework interface implementations.
      */
     private UserSummaryDto user;
+
+    // Added later: entries cached before these fields existed simply deserialize them as null
+    private Integer maxCompanions;
+
+    private String coverImageUrl;
 }

@@ -30,4 +30,15 @@ public class StaticPlanServiceImpl implements StaticPlanService {
         return staticPlanRepository.save(staticPlan);
     }
 
+    @Override
+    public StaticPlan getStaticPlanById(String staticPlanId) {
+        return staticPlanRepository.findById(staticPlanId)
+                .orElseThrow(() -> new IllegalStateException("Static plan not found with id: " + staticPlanId));
+    }
+
+    @Override
+    public void deleteStaticPlan(String staticPlanId) {
+        staticPlanRepository.delete(getStaticPlanById(staticPlanId));
+    }
+
 }

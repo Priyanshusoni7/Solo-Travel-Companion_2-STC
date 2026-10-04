@@ -18,4 +18,16 @@ public interface FriendshipService {
     public List<User> getFriends(String userId);
 
     public List<Friendship> getPendingFriendRequests(String userId);
+
+    /** Removes an accepted friendship between the two users. */
+    public void unfriend(String userId, String friendId);
+
+    /** Users that userId has blocked. */
+    public List<User> getBlockedUsers(String userId);
+
+    /** Only the user who blocked can unblock; the relationship is removed (back to "not connected"). */
+    public void unblockUser(String blockerId, String blockedId);
+
+    /** The friendship row between the two users in either direction, or null. */
+    public Friendship findFriendship(String userId, String otherId);
 }

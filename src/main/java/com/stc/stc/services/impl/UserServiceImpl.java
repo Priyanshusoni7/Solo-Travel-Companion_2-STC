@@ -3,9 +3,11 @@ package com.stc.stc.services.impl;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.stc.stc.entity.Role;
 import com.stc.stc.entity.User;
 import com.stc.stc.repository.UserRepo;
 import com.stc.stc.services.UserService;
@@ -30,9 +32,16 @@ public class UserServiceImpl implements UserService {
         user.setEmailVerified(true);
         user.setEnabled(true);
         user.setPhoneVerified(true);
+        // Every self-registered account is a normal user; ADMIN is only granted explicitly.
+        user.setRole(Role.USER);
 
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepo.save(user);
+    }
 
+    // cache — the explore feed shows each plan owner's name and photo
+    @Override
+    @CacheEvict(value = "exploreTrips", allEntries = true)
+    public User updateProfile(User user) {
         return userRepo.save(user);
     }
 

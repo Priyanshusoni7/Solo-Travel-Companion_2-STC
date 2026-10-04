@@ -10,4 +10,8 @@ public interface StaticPlanService {
     List<StaticPlan> getFeaturedPlans();
 
     StaticPlan saveStaticPlan(StaticPlan staticPlan);
+
+    StaticPlan getStaticPlanById(String staticPlanId);
+
+    void deleteStaticPlan(String staticPlanId);
 }

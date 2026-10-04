@@ -13,7 +13,7 @@ public interface MessageService {
 
     List<ChatMessageDto> getUnreadMessages(String userId);
 
-    void markAsRead(Long messageId);
+    void markAsRead(Long messageId, String currentUserId);
 
     public ChatMessageDto sendMessage(ChatMessageDto chatMessageDTO);
 

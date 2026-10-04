@@ -107,14 +107,14 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void markAsRead(Long messageId) {
+    public void markAsRead(Long messageId, String currentUserId) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Message not found"));
 
         // Check that the current user is the recipient
-        // if (!message.getRecipient().getUserId().equals(userId)) {
-        // throw new RuntimeException("Not authorized to mark this message as read");
-        // }
+        if (!message.getRecipient().getUserId().equals(currentUserId)) {
+            throw new RuntimeException("Not authorized to mark this message as read");
+        }
 
         message.setRead(true);
         messageRepository.save(message);

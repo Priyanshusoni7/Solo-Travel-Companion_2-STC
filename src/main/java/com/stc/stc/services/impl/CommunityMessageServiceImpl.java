@@ -42,6 +42,8 @@ public class CommunityMessageServiceImpl implements CommunityMessageService {
 
         dto.setTimestamp(savedMessage.getTimestamp());
         dto.setSenderName(sender.getName());
+        // returned/broadcast messages carry the userId, not the e-mail (which is private)
+        dto.setSender(sender.getUserId());
         return dto;
     }
 
@@ -58,7 +60,7 @@ public class CommunityMessageServiceImpl implements CommunityMessageService {
     private CommunityDto convertToDto(CommunityMessage message) {
         return CommunityDto.builder()
                 .content(message.getContent())
-                .sender(message.getSender().getEmail())
+                .sender(message.getSender().getUserId())
                 .senderName(message.getSender().getName())
                 .timestamp(message.getTimestamp())
                 .type(MessageType.CHAT)

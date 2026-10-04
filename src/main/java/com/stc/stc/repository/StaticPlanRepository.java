@@ -10,4 +10,6 @@ import com.stc.stc.entity.StaticPlan;
 @Repository
 public interface StaticPlanRepository extends JpaRepository<StaticPlan, String> {
     List<StaticPlan> findByFeaturedTrue();
+
+    long countByFeaturedTrue();
 }

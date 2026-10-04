@@ -14,7 +14,7 @@ A full-stack web application that helps solo travelers discover travel partners,
 ![Redis](https://img.shields.io/badge/Redis-Caching-red?style=for-the-badge)
 ![Docker](https://img.shields.io/badge/Docker-Containerization-2496ED?style=for-the-badge)
 ![WebSocket](https://img.shields.io/badge/WebSocket-Real_Time-success?style=for-the-badge)
-![Thymeleaf](https://img.shields.io/badge/Thymeleaf-Frontend-darkgreen?style=for-the-badge)
+![React](https://img.shields.io/badge/React-Frontend-61DAFB?style=for-the-badge)
 
 </div>
 
@@ -39,6 +39,20 @@ A full-stack web application that helps solo travelers discover travel partners,
 - FAQ
 - Contributing
 - License
+
+---
+
+# 🔄 Architecture Update: React frontend + ADMIN role
+
+This repository folder (`stc/`) is now the **Spring Boot backend only**: a REST + WebSocket API.
+The UI is a separate React application in `../frontend` with its own dev server, build and deployment.
+Thymeleaf has been removed. Users now have a role (`USER` or `ADMIN`) and admins get an admin panel.
+
+| | Backend (`stc/`) | Frontend (`../frontend/`) |
+|---|---|---|
+| Run locally | `mvnw spring-boot:run` → http://localhost:8080 | `npm run dev` → http://localhost:5173 |
+| Build | `mvnw clean package` (API jar, no UI) | `npm run build` (static `dist/`) |
+| Deploy | Dockerfile (unchanged approach) | any static host / its own Dockerfile |
 
 ---
 
@@ -248,12 +262,12 @@ The project can be started with a single command.
 
 ---
 
-## Frontend
+## Frontend (separate app in `../frontend`)
 
-- Thymeleaf
-- HTML5
-- CSS3
-- JavaScript
+- React 18 + React Router
+- Vite
+- Tailwind CSS
+- axios, STOMP.js + SockJS
 
 ---
 
@@ -381,10 +395,10 @@ The project uses Spring Security.
 Security Features
 
 - BCrypt Password Encoding
-- Form-based Authentication
-- Session Management
-- Protected Routes
-- Authentication-based Access Control
+- Session-based login (Spring Security form login, JSON responses for the React app)
+- CSRF protection (token exchanged via the X-XSRF-TOKEN header)
+- CORS restricted to the configured frontend origin(s)
+- Role-based access control: USER and ADMIN (`/api/admin/**` requires ADMIN)
 
 No JWT or OAuth has been used in this project.
 
@@ -1176,7 +1190,7 @@ Spring Boot Container
 - Runs the backend
 - Connects to MySQL
 - Connects to Redis
-- Serves Thymeleaf pages
+- Serves the REST/WebSocket API used by the React frontend
 
 Redis Container
 
@@ -1197,11 +1211,11 @@ Redis Container
 
 ---
 
-## Why Thymeleaf?
+## Why a separate React frontend?
 
-- Tight integration with Spring Boot
-- Server-side rendering
-- Easy template management
+- Frontend and backend can be developed, built and deployed independently
+- Rich client-side interactions (chat, search, admin panel) without full page reloads
+- The backend becomes a clean API that other clients could reuse
 
 ---
 
@@ -1274,7 +1288,6 @@ Potential enhancements include
 - Google Maps Integration
 - Travel Recommendations
 - AI-based Travel Matching
-- Admin Dashboard
 - JWT Authentication
 - OAuth Login
 - Mobile Application
@@ -1442,9 +1455,9 @@ Docker provides a consistent environment, making setup and deployment much easie
 
 ---
 
-### Why Thymeleaf instead of React?
+### Where is the UI?
 
-This project is intentionally built using Spring Boot with Thymeleaf to demonstrate server-side rendering and seamless integration with Spring MVC.
+In the separate React app (`../frontend`). The Thymeleaf templates were migrated to React components.
 
 ---
 
@@ -1549,7 +1562,7 @@ Special thanks to the open-source community and the developers behind the techno
 - Redis
 - Docker
 - MySQL
-- Thymeleaf
+- React
 - Cloudinary
 - Maven
 - SockJS

@@ -14,4 +14,7 @@ public interface UserService {
 
     public List<User> searchPotentialFriends(String keyword, String currentUserId);
 
+    /** Saves profile changes of an existing user (no ID regeneration, no password re-encoding). */
+    public User updateProfile(User user);
+
 }

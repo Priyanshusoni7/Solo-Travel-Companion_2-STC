@@ -1,125 +1,86 @@
 package com.stc.stc.controllers;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.stc.stc.dto.JoinRequestDto;
 import com.stc.stc.entity.JoinRequest;
-import com.stc.stc.entity.Travel;
 import com.stc.stc.entity.User;
-import com.stc.stc.helper.Helper;
-import com.stc.stc.repository.UserRepo;
+import com.stc.stc.helper.CurrentUser;
+import com.stc.stc.repository.JoinRequestRepository;
 import com.stc.stc.services.JoinRequestService;
-import com.stc.stc.services.TravelService;
 
 import lombok.RequiredArgsConstructor;
 
-@Controller
+@RestController
+@RequestMapping("/api/requests")
 @RequiredArgsConstructor
 public class JoinRequestController {
 
     private final JoinRequestService joinRequestService;
-    private final TravelService travelService;
-    private final UserRepo userRepo;
+    private final JoinRequestRepository joinRequestRepository;
+    private final CurrentUser currentUser;
 
-    @PostMapping("/user/travel/join/{id}")
-    public String sendJoinRequest(
-            @PathVariable String id,
-            @RequestParam(required = false) String message,
-            Authentication authentication,
-            RedirectAttributes redirectAttributes) {
-        
-        // Get current user
-        String userEmail = Helper.getEmailOfLoggedInUser(authentication);
-        User currentUser = userRepo.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        
-        // Get travel plan
-        Travel travelPlan = travelService.getTravelPlanById(id);
-        if (travelPlan == null) {
-            redirectAttributes.addFlashAttribute("error", "Travel plan not found");
-            return "redirect:/user/dashboard";
-        }
-        
-        // Get plan owner
-        User planOwner = travelPlan.getUser();
-        
-        // Cannot join your own plan
-        if (planOwner.getUserId().equals(currentUser.getUserId())) {
-            redirectAttributes.addFlashAttribute("error", "You cannot join your own travel plan");
-            return "redirect:/user/travel/public/view/" + id;
-        }
-        
-        // Create join request
-        joinRequestService.createJoinRequest(currentUser, planOwner, travelPlan, message);
-        
-        redirectAttributes.addFlashAttribute("success", "Join request sent successfully");
-        return "redirect:/user/travel/public/view/" + id;
+    /** Pending join requests for plans owned by the current user. */
+    @GetMapping("/pending")
+    public List<JoinRequestDto> pending(Authentication authentication) {
+        User me = currentUser.require(authentication);
+        return joinRequestService.getPendingRequestsForOwner(me).stream().map(JoinRequestDto::from).toList();
     }
-    
-    @GetMapping("/user/requests/pending")
-    public String viewPendingRequests(Model model, Authentication authentication) {
-        // Get current user
-        String userEmail = Helper.getEmailOfLoggedInUser(authentication);
-        User currentUser = userRepo.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        
-        // Get pending requests for current user
-        List<JoinRequest> pendingRequests = joinRequestService.getPendingRequestsForOwner(currentUser);
-        
-        model.addAttribute("pendingRequests", pendingRequests);
-        return "user/pendingRequests";
+
+    /** Requests sent by the current user. */
+    @GetMapping("/sent")
+    public List<JoinRequestDto> sent(Authentication authentication) {
+        User me = currentUser.require(authentication);
+        return joinRequestService.getRequestsBySender(me).stream().map(JoinRequestDto::from).toList();
     }
-    
-    @PostMapping("/user/requests/respond/{id}")
-    public String respondToJoinRequest(
-            @PathVariable String id,
-            @RequestParam String action,
-            Authentication authentication,
-            RedirectAttributes redirectAttributes) {
-        
-        // Get current user
-        String userEmail = Helper.getEmailOfLoggedInUser(authentication);
-        User currentUser = userRepo.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        
+
+    /** body: {"action": "ACCEPTED" | "REJECTED"} */
+    @PostMapping("/{id}/respond")
+    public Map<String, String> respond(@PathVariable String id, @RequestBody Map<String, String> body,
+            Authentication authentication) {
+        User me = currentUser.require(authentication);
+        String action = body.get("action");
+
         // Check action is valid
-        if (!action.equals("ACCEPTED") && !action.equals("REJECTED")) {
-            redirectAttributes.addFlashAttribute("error", "Invalid action");
-            return "redirect:/user/requests/pending";
+        if (!"ACCEPTED".equals(action) && !"REJECTED".equals(action)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid action");
         }
-        
-        // Update request status
-        try {
-            joinRequestService.updateRequestStatus(id, action);
-            redirectAttributes.addFlashAttribute("success", 
-                    action.equals("ACCEPTED") ? "Request accepted successfully" : "Request rejected");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Failed to update request: " + e.getMessage());
+
+        // Only the owner of the travel plan may answer a join request
+        JoinRequest request = joinRequestRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Join request not found"));
+        if (!request.getOwner().getUserId().equals(me.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only respond to requests for your own plans");
         }
-        
-        return "redirect:/user/requests/pending";
-    }
-    
-    @GetMapping("/user/requests/sent")
-    public String viewSentRequests(Model model, Authentication authentication) {
-        // Get current user
-        String userEmail = Helper.getEmailOfLoggedInUser(authentication);
-        User currentUser = userRepo.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        
-        // Get requests sent by current user
-        List<JoinRequest> sentRequests = joinRequestService.getRequestsBySender(currentUser);
-        
-        model.addAttribute("sentRequests", sentRequests);
-        return "user/sentRequests";
+
+        // Respect the plan's maximum number of companions
+        Integer max = request.getTravelPlan().getMaxCompanions();
+        if ("ACCEPTED".equals(action) && !"ACCEPTED".equals(request.getStatus()) && max != null
+                && joinRequestService.countAccepted(request.getTravelPlan()) >= max) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "This trip is full (" + max + " companions). Increase the limit or remove a companion first.");
+        }
+
+        joinRequestService.updateRequestStatus(id, action);
+        return Map.of("message", action.equals("ACCEPTED") ? "Request accepted successfully" : "Request rejected");
     }
 
+    /** The sender withdraws a request that is still pending. */
+    @PostMapping("/{id}/cancel")
+    public Map<String, String> cancel(@PathVariable String id, Authentication authentication) {
+        User me = currentUser.require(authentication);
+        joinRequestService.cancelRequest(id, me);
+        return Map.of("message", "Join request cancelled");
+    }
 }

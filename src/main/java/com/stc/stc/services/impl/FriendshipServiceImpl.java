@@ -130,6 +130,45 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
+    public void unfriend(String userId, String friendId) {
+        Friendship friendship = findFriendship(userId, friendId);
+        if (friendship == null || !"accepted".equals(friendship.getStatus())) {
+            throw new RuntimeException("You are not friends with this user");
+        }
+        friendshipRepository.delete(friendship);
+    }
+
+    @Override
+    public List<User> getBlockedUsers(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<User> blocked = new ArrayList<>();
+        for (Friendship friendship : friendshipRepository.findBlockedByUser(user)) {
+            blocked.add(friendship.getUser2());
+        }
+        return blocked;
+    }
+
+    @Override
+    public void unblockUser(String blockerId, String blockedId) {
+        Friendship friendship = findFriendship(blockerId, blockedId);
+        if (friendship == null || !"blocked".equals(friendship.getStatus())
+                || !friendship.getUser1().getUserId().equals(blockerId)) {
+            throw new RuntimeException("You have not blocked this user");
+        }
+        friendshipRepository.delete(friendship);
+    }
+
+    @Override
+    public Friendship findFriendship(String userId, String otherId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        User other = userRepository.findById(otherId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return friendshipRepository.findFriendshipBetweenUsers(user, other).orElse(null);
+    }
+
+    @Override
     public List<Friendship> getPendingFriendRequests(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

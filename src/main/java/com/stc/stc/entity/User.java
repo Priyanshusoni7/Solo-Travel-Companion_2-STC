@@ -13,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -59,6 +61,15 @@ public class User implements UserDetails {
     private boolean emailVerified = true;
     private boolean phoneVerified = true;
 
+    // Nullable on purpose: Hibernate (ddl-auto=update) adds this column to the existing
+    // table, so rows created before the ADMIN role existed have NULL here. getRole()
+    // treats NULL as USER, and RoleMigrationRunner back-fills NULLs on startup.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20)
+    @Getter(value = AccessLevel.NONE)
+    @Builder.Default
+    private Role role = Role.USER;
+
     // mapping one user to many travelPlans
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
@@ -77,9 +88,17 @@ public class User implements UserDetails {
         return this.password;
     }
 
+    public Role getRole() {
+        return this.role == null ? Role.USER : this.role;
+    }
+
+    public boolean isAdmin() {
+        return getRole() == Role.ADMIN;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singletonList(new SimpleGrantedAuthority(getRole().authority()));
     }
 
     @Override
