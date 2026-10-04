@@ -1,0 +1,10 @@
+# Local notes (not part of the project)
+CHANGES.md
+FEATURE_PROPOSALS.md
+Run_Locally_Commands.md
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

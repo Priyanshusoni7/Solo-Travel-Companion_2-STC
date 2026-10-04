@@ -73,7 +73,7 @@ This project demonstrates modern backend development using Spring Boot along wit
 ```bash
 git clone https://github.com/Priyanshusoni7/Solo-Travel-Companion_2-STC.git
 
-cd Solo-Travel-Companion_2-STC
+cd Solo-Travel-Companion_2-STC/stc
 
 cp .env.example .env
 
@@ -452,7 +452,7 @@ git clone https://github.com/Priyanshusoni7/Solo-Travel-Companion_2-STC.git
 ```
 
 ```bash
-cd Solo-Travel-Companion_2-STC
+cd Solo-Travel-Companion_2-STC/stc
 ```
 
 ---
@@ -575,7 +575,7 @@ git clone https://github.com/Priyanshusoni7/Solo-Travel-Companion_2-STC.git
 Navigate into the project.
 
 ```bash
-cd Solo-Travel-Companion_2-STC
+cd Solo-Travel-Companion_2-STC/stc
 ```
 
 ---
